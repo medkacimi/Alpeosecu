@@ -1,0 +1,20 @@
+{
+  "name": "@radar/osm-import",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Importe les itinéraires et parkings de Haute-Savoie depuis Overpass (OSM) vers PostGIS",
+  "scripts": {
+    "import": "tsx src/cli.ts",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@radar/db": "*",
+    "@radar/shared": "*",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

@@ -1,8 +1,8 @@
 # 01 — Architecture du monorepo
 
-> Statut : **proposition à valider par l'équipe**. Aucun code n'est écrit tant
-> que ce document et [02-base-de-donnees.md](./02-base-de-donnees.md) ne sont pas validés.
-> Les questions encore ouvertes sont listées en fin de document.
+> Statut : **validé le 26/09/2026** (voir « Décisions prises » en fin de document).
+> Mis en place : monorepo, base de données (`db/`), import OSM (`tools/osm-import/`), CI.
+> Restent à créer : `apps/api`, `apps/web`, `apps/mobile`.
 
 ## 1. Vue d'ensemble
 
@@ -112,20 +112,23 @@ radar-montagne/
 │       │   └── zone.ts           # emprise de la zone pilote Haute-Savoie
 │       └── package.json
 │
-├── db/
+├── db/                           # package @radar/db
 │   ├── migrations/               # 0001_init.sql, 0002_..., appliquées dans l'ordre
-│   └── seeds/                    # données de démo (faux signalements)
+│   ├── seeds/                    # données de démo (faux signalements)
+│   └── src/                      # exécuteur de migrations, createPool (réutilisé par l'API)
 │
 ├── tools/
-│   └── osm-import/               # script Overpass → PostGIS
-│       ├── queries/              # requêtes Overpass QL versionnées
-│       └── import.ts
+│   └── osm-import/               # package @radar/osm-import : Overpass → PostGIS
+│       ├── queries/              # requêtes Overpass QL (*.overpassql, testables sur overpass-turbo)
+│       ├── fixtures/             # réponses Overpass FICTIVES pour les tests
+│       └── src/                  # convert.ts (pur), overpass.ts (HTTP), store.ts (SQL), cli.ts
 │
 ├── docs/                         # ces documents + décisions (ADR)
 ├── .github/workflows/ci.yml      # lint + typecheck + tests à chaque PR
-├── docker-compose.yml            # PostGIS local pour le développement
+├── docker-compose.yml            # PostGIS local (bases radar + radar_test)
 ├── .env.example                  # liste des variables, sans secrets
 ├── package.json                  # workspaces npm
+├── tsconfig.base.json            # config TypeScript commune
 └── README.md
 ```
 
@@ -196,15 +199,21 @@ le même processus — pas de file de messages en V1)
    sont supprimés.
 
 **Importer les sentiers** (`tools/osm-import`, hebdomadaire ou manuel)
-1. Requêtes Overpass limitées à la Haute-Savoie (zone administrative du
-   département 74 ; la requête exacte est à mettre au point et à versionner dans
-   `queries/`).
-2. Upsert dans `trails` / `parkings` sur la clé `(osm_type, osm_id)`.
-3. Tags OSM visés (à confirmer avec des requêtes de test sur overpass-turbo) :
+1. Requêtes Overpass limitées à la Haute-Savoie : zone administrative
+   `admin_level=6` + `ref:INSEE=74` (voir `tools/osm-import/queries/`).
+   ⚠️ Pas encore testées contre le vrai serveur Overpass : à valider sur
+   overpass-turbo avant le premier import réel.
+2. Découpage des itinéraires à l'emprise de la zone (un GR peut sortir du
+   département), puis upsert dans `trails` / `parkings` sur `(osm_type, osm_id)`,
+   le tout dans une seule transaction.
+3. Suppression des itinéraires disparus d'OSM et des parkings à plus de 500 m
+   d'un itinéraire. Garde-fou : import refusé s'il contient moins de la moitié
+   des itinéraires déjà en base (réponse Overpass probablement tronquée).
+4. Tags OSM retenus :
    - rando : relations `route=hiking` / `route=foot` ;
    - VTT : relations `route=mtb` ;
-   - ski : voies ou relations `piste:type=nordic|skitour` (voir question ouverte n°3) ;
-   - parkings : `amenity=parking` à proximité d'un sentier importé.
+   - ski : voies ou relations `piste:type=nordic|skitour` (pas de ski alpin) ;
+   - parkings : `amenity=parking`, hors `access=private|no`.
 
 ## 5. Cartographie, attribution et licences
 
@@ -233,10 +242,10 @@ le même processus — pas de file de messages en V1)
 |---|---|---|
 | Auth | Supabase (offre gratuite) | Un projet gratuit peut être mis en pause après une période d'inactivité. |
 | Base PostGIS | **La base Postgres du même projet Supabase** (PostGIS disponible en extension) | Évite un 2ᵉ fournisseur. Taille limitée sur l'offre gratuite : suffisante pour une seule zone. |
-| API | Railway **ou** Render | Railway ne propose, à ma connaissance, plus d'offre gratuite permanente (crédit d'essai seulement). Render a une offre gratuite avec mise en veille. À trancher (question ouverte n°2). |
+| API | **Render** (offre gratuite) | Le service se met en veille après une période d'inactivité : la 1ʳᵉ requête suivante est lente (souvent plusieurs dizaines de secondes). Acceptable pour le pilote ; prévenir le jury avant la démo. |
 | Web | Vercel (offre Hobby) | Offre réservée à un usage non commercial : OK pour un projet étudiant. |
-| Mobile | EAS Build (offre gratuite, nombre de builds limité par mois) | Android : APK de test sans frais. **iOS/TestFlight : nécessite un compte Apple Developer payant (environ 99 $/an)**, ce qui contredit la contrainte. Voir question ouverte n°5. |
-| Push | Expo Push Service | Gratuit. Sur Android, les notifications push ne fonctionnent plus dans Expo Go depuis les SDK récents : il faut une *development build*. À vérifier selon la version du SDK. |
+| Mobile | EAS Build (offre gratuite, nombre de builds limité par mois) | **Android uniquement** : APK de test distribué directement. Pas de compte Apple Developer, donc pas de TestFlight. Sur iPhone, l'app peut être testée en développement via Expo Go, à condition de n'utiliser que des modules inclus dans Expo Go (à vérifier pour chaque dépendance). |
+| Push | Expo Push Service | Gratuit. **Android seulement** : sur iOS, l'envoi de notifications passe par Apple (APNs), ce qui demande un compte Apple Developer. Sur Android, il faut une *development build* ou l'APK : à ma connaissance, Expo Go ne gère plus les push sur Android avec les SDK récents. |
 
 Environnements : `local` (docker-compose PostGIS + API + Vite + Expo) et `prod`.
 Pas d'environnement de préproduction en V1.
@@ -252,18 +261,12 @@ Pas d'environnement de préproduction en V1.
 | Févr. | Suivi d'itinéraire + notifications push | 6 |
 | Mars | Stabilisation, builds EAS, démo, soutenance | — |
 
-## 8. Questions ouvertes (à trancher avant de coder)
+## 8. Décisions prises (26/09/2026)
 
-1. **TypeScript ou JavaScript ?** Je recommande TypeScript : les types partagés
-   dans `packages/shared` évitent les écarts entre mobile, web et API. Mais cela
-   ajoute une courbe d'apprentissage. Quel est le niveau de l'équipe ?
-2. **Hébergement de l'API :** Railway (imposé dans le cahier des charges, mais
-   probablement payant au-delà de l'essai) ou Render (gratuit avec mise en veille) ?
-3. **Ski :** quels types de pistes ? Je propose ski de fond et ski de
-   randonnée seulement (`nordic`, `skitour`). Les pistes de station sont déjà
-   gérées et fermées par les exploitants.
-4. **Durées d'expiration :** le cahier des charges dit 24–48 h. J'ai mis 48 h pour
-   boue/neige/fermé et 24 h pour parking/RAS. L'affluence d'un parking change
-   en quelques heures : voulez-vous une durée plus courte, hors de la fourchette ?
-5. **iOS :** l'équipe (ou l'école) a-t-elle déjà un compte Apple Developer ?
-   Sinon, on vise l'APK Android + le web pour la démo, et on teste iOS en local.
+| Question | Décision | Conséquence |
+|---|---|---|
+| Langage | **TypeScript** partout | `tsconfig.base.json` commun ; tsx / Vite / Metro exécutent le TS directement, `tsc` ne sert qu'à vérifier les types. |
+| Hébergement API | **Render** | Voir la mise en veille (section 6). |
+| Ski | **Ski de fond et ski de randonnée** (`piste:type=nordic|skitour`) | Pas de pistes de station. |
+| iOS | **Pas de compte Apple Developer** | Démo sur APK Android + web. iPhone : tests de développement via Expo Go seulement, sans push. |
+| Durées d'expiration | Pas de retour : on garde **48 h** (boue, neige, fermé) et **24 h** (parking, RAS) | Modifiable par un simple `UPDATE radar.condition_types`, sans changer le code. |

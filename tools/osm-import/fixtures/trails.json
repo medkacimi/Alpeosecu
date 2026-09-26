@@ -1,0 +1,46 @@
+{
+  "version": 0.6,
+  "generator": "fixture radar-montagne (données fictives)",
+  "elements": [
+    {
+      "type": "relation", "id": 9000001,
+      "members": [
+        { "type": "way", "ref": 1, "role": "", "geometry": [ { "lat": 45.800, "lon": 6.090 }, { "lat": 45.805, "lon": 6.095 } ] },
+        { "type": "way", "ref": 2, "role": "", "geometry": [ { "lat": 45.805, "lon": 6.095 }, { "lat": 45.810, "lon": 6.100 } ] },
+        { "type": "node", "ref": 3, "role": "guidepost", "lat": 45.800, "lon": 6.090 }
+      ],
+      "tags": { "type": "route", "route": "hiking", "name": "Sentier fictif du Semnoz", "sac_scale": "hiking" }
+    },
+    {
+      "type": "relation", "id": 9000002,
+      "members": [
+        { "type": "way", "ref": 4, "role": "", "geometry": [ { "lat": 45.900, "lon": 5.700 }, { "lat": 45.900, "lon": 5.900 } ] }
+      ],
+      "tags": { "type": "route", "route": "mtb", "name": "Boucle VTT fictive transfrontalière", "mtb:scale": "2" }
+    },
+    {
+      "type": "way", "id": 9000003,
+      "geometry": [ { "lat": 45.965, "lon": 6.330 }, { "lat": 45.970, "lon": 6.340 } ],
+      "tags": { "piste:type": "nordic", "piste:difficulty": "easy", "name": "Piste fictive des Glières" }
+    },
+    {
+      "type": "relation", "id": 9000004,
+      "members": [ { "type": "relation", "ref": 9000001, "role": "" } ],
+      "tags": { "type": "superroute", "route": "hiking", "name": "Superroute fictive" }
+    },
+    {
+      "type": "relation", "id": 9000005,
+      "members": [
+        { "type": "way", "ref": 5, "role": "", "geometry": [ { "lat": 45.900, "lon": 6.200 }, { "lat": 45.910, "lon": 6.210 } ] }
+      ],
+      "tags": { "type": "route", "route": "bicycle", "name": "Véloroute fictive" }
+    },
+    {
+      "type": "relation", "id": 9000006,
+      "members": [
+        { "type": "way", "ref": 6, "role": "", "geometry": [ { "lat": 45.190, "lon": 5.720 }, { "lat": 45.200, "lon": 5.730 } ] }
+      ],
+      "tags": { "type": "route", "route": "hiking", "name": "Sentier fictif hors zone (Isère)" }
+    }
+  ]
+}

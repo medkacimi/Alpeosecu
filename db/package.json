@@ -1,0 +1,23 @@
+{
+  "name": "@radar/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Migrations SQL, données de démo et utilitaires de connexion PostgreSQL",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "migrate": "tsx src/cli.ts migrate",
+    "seed": "tsx src/cli.ts seed",
+    "reset": "tsx src/cli.ts reset",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@radar/shared": "*",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

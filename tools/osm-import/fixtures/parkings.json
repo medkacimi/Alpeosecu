@@ -1,0 +1,10 @@
+{
+  "version": 0.6,
+  "generator": "fixture radar-montagne (données fictives)",
+  "elements": [
+    { "type": "node", "id": 9100001, "lat": 45.8005, "lon": 6.0905, "tags": { "amenity": "parking", "name": "Parking fictif du Semnoz", "capacity": "40" } },
+    { "type": "way", "id": 9100002, "center": { "lat": 45.9689, "lon": 6.3346 }, "tags": { "amenity": "parking", "name": "Parking fictif des Glières", "capacity": "env. 200" } },
+    { "type": "node", "id": 9100003, "lat": 45.8992, "lon": 6.1294, "tags": { "amenity": "parking", "name": "Parking fictif en ville (loin des sentiers)" } },
+    { "type": "node", "id": 9100004, "lat": 45.8006, "lon": 6.0906, "tags": { "amenity": "parking", "access": "private" } }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  // Configuration TypeScript commune à tous les packages.
+  // Chaque package l'étend dans son propre tsconfig.json.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    // "preserve" + "bundler" : imports sans extension (import { x } from "./zone"),
+    // compris par tsx (Node), Vite (web) et Metro (mobile).
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    // On ne compile pas en JS : tsx / Vite / Metro exécutent le TypeScript
+    // directement. tsc ne sert qu'à vérifier les types.
+    "noEmit": true
+  }
+}

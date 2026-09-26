@@ -1,0 +1,13 @@
+{
+  "name": "@radar/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Code partagé entre l'API, le web et le mobile (sans dépendance Node)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  }
+}

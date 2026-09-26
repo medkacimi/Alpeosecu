@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+# Réponses Overpass sauvegardées localement (volumineuses)
+tools/osm-import/cache/
+# Expo
+.expo/

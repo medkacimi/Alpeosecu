@@ -1,0 +1,29 @@
+{
+  "name": "radar-montagne",
+  "private": true,
+  "description": "Carte collaborative de l'état des sentiers en Haute-Savoie",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "db",
+    "tools/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:migrate": "npm run migrate -w @radar/db",
+    "db:seed": "npm run seed -w @radar/db",
+    "db:reset": "npm run reset -w @radar/db",
+    "osm:import": "npm run import -w @radar/osm-import --"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}
